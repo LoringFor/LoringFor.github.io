@@ -1,10 +1,9 @@
 
 var defaultPageSize = 5;
-var arr = eval('[{"title":"我的第一篇博客","date":"2016-07-01 00:39:19","desc":"这是我的第一篇博客, 主要是用来做测试的, `TitanPages`是不是可以完美的生成静态博客呢?"}, \
-			  				 {"title":"我的第二篇博客","date":"2016-07-01 00:39:19","desc":"这是我的第一篇博客, 主要是用来做测试的, `TitanPages`是不是可以完美的生成静态博客呢?"}, \
+var arr = eval('[{"title":"初入linux世界","date":"2017-05-11 00:39:19","desc":"初入linux世界"}, \
+			  				 {"title":"我的第二篇博客","date":"2017-05-12 00:39:19","desc":"这是我的第一篇博客, 主要是用来做测试的, `TitanPages`是不是可以完美的生成静态博客呢?"}, \
 							{"title":"Test","date":"2016-07-01 00:39:19","desc":"这是我的第一篇博客, 主要是用来做测试的, `TitanPages`是不是可以完美的生成静态博客呢?"}, \
 							{"title":"Test","date":"2017-05-12 23:46:41","desc":"这是我的test第一篇博客,主要是用来做测试的"}]')
-
 
 function get(currentPage) {
 	return getResult(currentPage, defaultPageSize);
