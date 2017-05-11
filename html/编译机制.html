@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>编译机制</title>
+  <meta name="description" content="编译机制" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" type="text/css" href="../css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+
+  <meta name="generator" content="Casper theme live demo">
+</head>
+	
+	
+<body class="post-template">
+<main class="content" role="main">
+  <article class="post">
+    <span class="post-meta">
+      <time datetime="2017-05-12" itemprop="datePublished">2017-05-12 23:22:37</time>
+       by <a href='http://loringfor.github.io' style='margin:0 5px;'>向玉林</a>
+    </span>
+    <h1 class="post-title" align="center">编译机制</h1>
+    <section class="post-content">
+
+<p align="center">我只是一个刚刚学习linux的新手，把自己的学习经历以博客的形式记录下来</p>
+
+<h2 id="linux下的包机制">linux下的包机制：</h2>
+<p>用户编写的源程序要投入运行，必须经过编译、链接的过程。在windows系统下，大多数的IDE都内置了编译器的功能，无需用户操作。在linux系统下，则需要手动进行编译和链接操作。Linux下的编译器有gcc/g++，gcc和g++之间有什么关系，你可以把把gcc当成c语言编译器，g++当成c++语言编译器用就是了，gcc更确切的说他是一个驱动程序，根据代码的后缀名来判断调用c编译器还是c++编译器 (g++)。比如你的代码后缀是*.c，他会调用c编译器还有linker去链接c的library。如果你的代码后缀是cpp, 他会调用g++编译器，当然library call也是c++版本的。</p>
+
+<h2 id="编译过程">编译过程：</h2>
+<p>编译是根据用户手写的源程序，进行语法和词法的分析，将高级语言转换为功能有效的汇编语言代码，再由汇编语言转换为机器语言的过程。汇编通常情况下又可以划分为预编译、编译、优化和汇编四个子过程。</p>
+<p><strong>预编译：</strong>预编译主要是对源程序中的伪指令（即以#开头的指令）和特殊符号进行处理。常见的伪指令包括宏定义指令（#define、#undef）、条件编译指令（#ifdef、#ifndef、#else、#elif、#endif）、头文件包含指令（#include）和一些特殊的符号。经过预编译处理，将生成一个没有宏定义、没有条件编译指令、没有特殊符号的输出文件。</p>
+<p><strong>编译：</strong>经过预编译处理后，将产生新的源程序。在该源程序中，只有常量、变量的定义以及一些关键字等信息。编译程序将通过语法分析和词法分析，确认所有的指令都符合语法规则，并将其翻译成等价的中间代码或汇编代码。</p>
+<p><strong>优化：</strong>优化处理是编译系统中一项比较深奥的技术。它不仅同编译技术本身有关，而且同机器的硬件环境有很大关系。优化需要理解的东西太多，很多不是很懂，这里不赘述了。</p>
+<p><strong>汇编：</strong>代码经过优化后，再经过汇编程序的翻译，即可生成可为计算机系统所识别的二进制代码。</p>
+
+<h2 id="链接">链接：</h2>
+<p>  经过编译操作后，编译程序将生成二进制目标代码。这些目标代码虽然是机器语言代码，但不能直接执行。只有进行链接操作，才会生成真正可以执行的可执行程序。对于什么是链接，其实在windows下编程已经接触过不少，比如在c++下编写一个程序，自己写的代码是不能成为一个可执行程序的，因为还调用了很多库函数，比如使用cout和cin，都需要声明#include<iostream>,在执行程序时要链接这个库。</p>
+<p>  链接分为<em>静态链接</em>和<em>动态链接</em>，所谓静态链接就是把函数库中包含的代码静态添加到可执行文件中，而动态链接就是将这些函数库的路径、函数名等信息添加到可执行文件中，在执行过程中动态加载相应的函数库。静态库和应用程序编译在一起，在任何情况下都能运行，而动态库是动态链接，顾名思义就是在应用程序启动的时候才会链接，所以，当用户的系统上没有该动态库时，应用程序就会运行失败。这就是windows平台下编写的程序不能在其他系统上运行的原因，因为里面动态链接了windows的库函数。</p>
+<p>  主要学习了gcc编译器，这里来介绍下。deepin下已经安装了gcc编译器，没有的话可以按照上一篇的bolg中的方法进行安装。其实我们在终端执行的各种命令就是一个可执行程序，只是跟word这样的程序比起来没有图形界面而已，本质上没有区别。Window下二进制代码称为obj文件，linux下缺省后缀为.o。以下是c在gcc编译过程。</p>
+<div class="figure">
+<img src="../images/compile.jpg" alt="a" />
+</div>
+		
+<p><em>在gcc编译器环境下，常见文件拓展名的含义如下：</em></p>
+<pre><code>+ .c:C源程序
++ .h:头文件
++ .s:汇编程序代码
++ .o:目标代码
++ .a:函数库</code></pre>
+		
+<p><em>gcc常见语法选项：</em></p>
+<pre><code>+ --help：获取帮助；
++ -E：只进行预编译，不编译也不链接；
++ -c：只进行编译，而不进行链接；
++ -S：输出汇编代码文件，将生成一个与源文件同名的.s后缀的文件，文件中包含的是生成的汇编代码；
++ -o：链接生成可执行文件，可以附加生成的可执行文件名称，缺省值为a.out；
++ -g：产生符号调试工具所必要的符号信息；
++ -O：在编译链接过程中进行优化。</code></pre>
+
+<p><em>假设现在有hello.c文件</em></p>
+<ul>
+<li><p><code>gcc -o hello hello.c</code> 一步到位的编译指令</p></li>
+<li><p><code>gcc –E hello.c -o hello.i</code> 只进行预编译，生成.i文件</p></li>
+<li><p><code>gcc –S hello.i</code>输出汇编代码文件</p></li>
+<li><p><code>gcc –c hello.c</code>或 <code>gcc -c hello.c –o hello.o</code>或<code>gcc -c hello.i -o hello.o</code> 只进行编译但不链接，生成与源文件同名的.o文件</p></li>
+<li><p><code>gcc hello.o –o hello.o</code> 链接文件，生成可执行文件</p></li>
+</ul>
+		
+		
+    <footer class="post-footer">
+      <section class="author">
+        <h4>向玉林</h4>
+      </section>
+
+      <section class="share">
+        <h4>Share this post</h4>
+        <a class="icon-twitter" href="http://twitter.com/share?url=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <span class="hidden">Twitter</span>
+        </a>
+        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+          onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <span class="hidden">Facebook</span>
+        </a>
+        <a class="icon-google-plus" href="https://plus.google.com/share?url=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <span class="hidden">Google+</span>
+        </a>
+      </section>
+    </footer>
+  </article>
+</main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="../js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="../js/index.js"></script>
+</body>
+</html>

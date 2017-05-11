@@ -1,9 +1,9 @@
 
 var defaultPageSize = 5;
-var arr = eval('[{"title":"初入linux世界","date":"2017-05-11 00:39:19","desc":"初入linux世界"}, \
-			  				 {"title":"我的第二篇博客","date":"2017-05-12 00:39:19","desc":"这是我的第一篇博客, 主要是用来做测试的, `TitanPages`是不是可以完美的生成静态博客呢?"}, \
-							{"title":"Test","date":"2016-07-01 00:39:19","desc":"这是我的第一篇博客, 主要是用来做测试的, `TitanPages`是不是可以完美的生成静态博客呢?"}, \
-							{"title":"Test","date":"2017-05-12 23:46:41","desc":"这是我的test第一篇博客,主要是用来做测试的"}]')
+var arr = eval('[{"title":"初入linux世界","date":"2017-05-11 00:39:19","desc":"我只是一个刚刚学习linux的新手，把自己的学习经历以博客的形式记录下来"},\
+{"title":"编译机制","date":"2017-05-12 00:39:19","desc":"以自身学习经历来谈谈linux下源程序的编译过程"},\
+{"title":"make的使用","date":"2017-05-14 00:39:19","desc":"linux下，make是一个非常重要的工具"},\
+{"title":"QObject类详解","date":"2017-05-16 23:46:41","desc":"详细了解Qt中的基类QObject"}]')
 
 function get(currentPage) {
 	return getResult(currentPage, defaultPageSize);

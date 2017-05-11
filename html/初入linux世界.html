@@ -23,7 +23,7 @@
       <time datetime="2017-05-12" itemprop="datePublished">2017-05-12 23:22:37</time>
        by <a href='http://loringfor.github.io' style='margin:0 5px;'>向玉林</a>
     </span>
-    <h1 class="post-title">初入linux世界</h1>
+    <h1 class="post-title" align="center">初入linux世界</h1>
     <section class="post-content">
 
 <p>我只是一个刚刚学习linux的新手，把自己的学习经历以博客的形式记录下来</p>
@@ -41,18 +41,92 @@
 			安装deepin后第一次进入这个操作系统后给我的第一感觉就是，我真的被deepin的桌面环境惊艳到了，非常友好的交互式界面，同时用起来也很流畅，搭载的应用比较多。
 		</p>	
 
-<h2>linux系统如何安装软件</h2>
-		<p>通常Linux应用软件的安装包有三种：<br/>
-			<ol style="list-style-type: decimal">
-					<li> tar包，如software-1.2.3-1.tar.gz。它是使用UNIX系统的打包工具tar打包的。</li>
-					<li>rpm包，如software-1.2.3-1.i386.rpm。它是Redhat Linux提供的一种包封装格式。(现在用的全称叫RPM Package Manager,以前叫Redhat Package Manager)</li>
-					<li> dpkg包，如software-1.2.3-1.deb。它是Debain Linux提供的一种包封装格式。</li>
-			</ol>
-		</p>
+<h1 id="linux下的包机制">linux下的包机制</h1>
+<p>deepin Linux采用了Debian的软件包管理机制。由于软件包具有易用性、灵活性和扩展性的特点，因而deb软件包管理也成为了一种非常流行的包管理机制。</p>
+<p>Debian包文件包含了二进制可执行文件、库文件、配置文件和man/info帮助页面等文档。通常Debian包文件的后缀为.deb，因此称为“Deb软件包”。Ubuntu有两种类型的软件包：二进制软件包（deb）和源码包（deb-src）。</p>
+<ul>
+<li>二进制软件包（Binary Packages）：包含可执行文件、库文件、配置文件、man/info页面、版权声明和其他文档。</li>
+<li>源码包（Source Packages）：包含软件源代码、版本修改说明、构建指令以及编译工具等。先由tar工具归档为.tar.gz文件，然后再打包成.dsc文件。</li>
+</ul>
+<h2 id="软件的命令规则">软件的命令规则：</h2>
+<div class="figure">
+<img src="../images/deb_name" alt="alt text" />
+</div>
+		
+<p>我们常常使用的软件包管理工具有两种，一种叫做dpkg软件包管理工具,它是”debian package”的简写，是Debian软件包管理器的基础。它是最早的deb软件包管理工具， 他在Debian Linux一提出软件包管理模式后就诞生了。使用dpkg可以实现软件包的安装、编译、卸载、查询，以及应用程序打包等功能。但是由于当时Linux系统规模和Internet 网络条件的限制，我们使用dpkg安装软件包的时候需要考虑软件包之前的依赖关系。也有人把它叫做本地安装工具。总之，dpkg是一个底层的软件包管理系统， 主要用于对已下载到本地和已安装的软件包进行管理.</p>
+<p>我们的dpkg安装一般来说有可能要安装多个软件包。而我们linux系统中的依赖关系相对复杂，因此就定义了一个依赖关系表。</p>
+<div class="figure">
+<img src="../images/deb_table" alt="alt text" />
+</div>
+		
+<p>既然有了依赖关系，那么我们肯定会安装多个软件包，那么哪个软件包先安装，那个软件包后安装呢？于是，这里就又有了一个叫做优先级的说法。 Ubuntu中为每个软件包指定了一个优先级，作为软件包管理器选择安装和卸载的一个依据。下图中有关于优先级的描述。</p>
+<div class="figure">
+<img src="../images/deb_youxianji" alt="alt text" />
+</div>
+		
+<h2 id="apt-get软件包管理联网安装">apt-get软件包管理（联网安装）</h2>
+<ul>
+<li>镜像站点服务器 APT系列工具可能是Deb软件包管理工具中功能最强大的。它会自动检测软件包之间的依赖关系。 因为它采用了集中式的软件仓库的机制，将各式各样的软件包分门别类地存放在软件仓库中，进行有效地组织和管理。 然后，将软件仓库置于许许多多的镜像服务器中，并保持基本一致。（可理解为我们上网的时候，有很多的网站，网站中有一些下载的链接， 这里下载的链接中就又很多的软件包，这就是软件包仓库，这里的镜像站点服务器可理解为下载的网站）。这些镜像服务器就是它们的软件源（下载网站的集合）。 我们可以在/etc/apt/source.list中来查看我们的软件源，这个路径就叫做镜像站点服务器。</li>
+<li>索引文件 我们的镜像站点服务器只是告诉了我们。我们的软件包应该在哪里去下载。但是我们这些镜像站点具体拥有哪些资源，对我们来说，不是很清楚。如果，我们每安装一个软件包就到我们的服务器上去寻找一遍，这样的话效率就太低了。因此，我们提出了一个概念，叫做索引文件。 它的本质就是我们为服务器上的软件资源在本地列了一个清单，以便于主机进行查询操作。（可理解为网站服务器在本地的缓存）。我们可以在/var/lib/apt/lists/ 这个目录来查看。</li>
+</ul>
+		
+<h3 id="常见apt命令">常见apt命令：</h3>
+<p><code>apt-get install packagename</code> 安装一个新软件包 </p>
+<p><code>apt-get remove packagename </code> 卸载一个已安装的软件包(保留配置文件)</p>
+<p><code>apt-get --purge remove packagename</code> 卸载一个已安装的软件包(删除配置文件)</p>
+<p><code>dpkg --force-all --purge packagename</code> 有些软件很难卸载，而且还阻止了别的软件的应用，就可以用这个，不过有点冒险。</p>
+<p><code>apt-get autoremove</code> 因为apt会把已装或已卸的软件都备份在硬盘上，所以如果需要空间的话，可以让这个命令来删除你已经删掉的软件。</p>
+<p><code>apt-get autoclean</code> 定期运行这个命令来清除那些已经卸载的软件包的.deb文件。通过这种方式，可以释放大量的磁盘空间。如果需求十分迫切，可以使用apt-get clean以释放更多空间。这个命令会将已安装软件包裹的.deb文件一并删除。</p>
+<p><code>apt-get clean</code> 这个命令会把安装的软件的备份也删除，不过这样不会影响软件的使用的。</p>
+<p><code>apt-get upgrade</code> 更新所有已安装的软件包</p>
+<p><code>apt-get dist-upgrade</code> 将系统升级到新版本</p>
+<p><code>apt-cache search string</code> 在软件包列表中搜索字符串</p>
+<p><code>apt-cache showpkg pkgs</code> 显示软件包信息。</p>
+<p><code>apt-cache stats</code> 查看库里有多少软件</p>
+<p><code>apt-cache dumpavail</code> 打印可用软件包列表。</p>
+<p><code>apt-cache show pkgs</code> 显示软件包记录，类似于dpkg –print-avail。</p>
+<p><code>apt-cache pkgnames</code> 打印软件包列表中所有软件包的名称</p>
+
+<h3 id="一个linux应用程序的软件包中可以包含两种不同的内容">一个linux应用程序的软件包中可以包含两种不同的内容：</h3>
+<ol style="list-style-type: decimal">
+<li>一种就是可执行文件，也就是解开包后就可以直接运行的。在Windows中所有的软件包都是这种类型。安装完这个程序后，你就可以使用，但你看不到源程序。而且下载时要注意这个软件是否是你所使用的平台，否则将无法正常安装。</li>
+<li>另一种则是源程序，也就解开包后，你还需要使用编译器将其编译成为可执行文件。这在Windows系统中是几乎没有的，因为Windows的思想是不开放源程序的。</li>
+</ol>
+		
+<h3 id="具体安装方式">具体安装方式</h3>
+<h4 id="tar.gz源代码包安装步骤">tar.gz源代码包安装步骤：</h4>
+<ol style="list-style-type: decimal">
+<li>找到相应的软件包，比如soft.tar.gz，下载到本机某个目录;</li>
+<li>打开一个终端，su -成root用户;（第一次进去需要设置密码：sudo passwd root 设置密码）</li>
+<li><code>cd soft.tar.gz</code> 切换到所在的目录;</li>
+<li><code>tar -xzvf soft.tar.gz</code> 解压，一般会生成一个soft目录</li>
+<li><code>cd soft</code> 切换到soft目录</li>
+<li><code>./configure</code> 为编译做好准备</li>
+<li><code>make</code> 进行软件编译</li>
+<li><code>make install</code> 安装</li>
+<li><code>make clean</code> 删除安装时产生的临时文件</li>
+</ol>
+		
+<h4 id="rpm包安装方式步骤">rpm包安装方式步骤：</h4>
+<ol style="list-style-type: decimal">
+<li>找到相应的软件包，比如soft.version.rpm，下载到本机某个目录;</li>
+<li>打开一个终端，su -成root用户;</li>
+<li><code>cd soft.version.rpm</code> 切换到所在的目录;</li>
+<li><code>rpm -ivh soft.version.rpm</code> 进行安装</li>
+<li><code>rpm –e 软件名</code> 进行卸载</li>
+</ol>
+		
+<h4 id="deb包安装方式步骤与rpm包的安装方式基本相同">deb包安装方式步骤（与rpm包的安装方式基本相同）：</h4>
+<ol style="list-style-type: decimal">
+<li>找到相应的软件包，比如soft.version.deb，下载到本机某个目录;</li>
+<li>打开一个终端，su -成root用户;</li>
+<li><code>cd soft.version.deb</code> 切换到所在的目录;</li>
+<li><code>dpkg -i soft.version.deb</code> 进行安装</li>
+<li><code>dpkg –e 软件名</code> 进行卸载</li>
+</ol>
 		
 		
-		
-		
+<!---
 <table>
 <thead>
 <tr>
@@ -96,6 +170,7 @@
 
 <p>最后来一个图片吧,</p>
 <p><img src="https://avatars2.githubusercontent.com/u/7258171?v=3&amp;s=460" alt="" /></p>
+--->
 
 		
     <footer class="post-footer">	
