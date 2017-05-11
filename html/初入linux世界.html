@@ -29,21 +29,20 @@
 <p>我只是一个刚刚学习linux的新手，把自己的学习经历以博客的形式记录下来</p>
 
 <h2>什么是linux？</h2>
-<p>&nbsp;Linux是一套免费使用和自由传播的类Unix操作系统，是一个基于POSIX和UNIX的多用户、多任务、支持多线程和多CPU的操作系统。
-	它能运行主要的UNIX工具软件、应用程序和网络协议。它支持32位和64位硬件。Linux继承了Unix以网络为核心的设计思想，是一个性能稳定的多用户网络操作系统。<br/>
-&nbsp;上面这是来自百度百科的解释，别的不想多说，但是对于linux之父—林纳斯·本纳第克特·托瓦兹（Linus Benedict Torvalds, 1969年~ ），对于这个人是真的很服气，
-	感觉是真的厉害，是开启一个时代的人。还有就是Linus花了两周时间自己用C写了一个分布式版本控制系统，这就是现在的Git！一个月之内，Linux系统的源码已经由Git管理了！牛是怎么定义的呢？体会一下</p>
+<p style="text-indent:2em">Linux是一套免费使用和自由传播的类Unix操作系统，是一个基于POSIX和UNIX的多用户、多任务、支持多线程和多CPU的操作系统。
+											它能运行主要的UNIX工具软件、应用程序和网络协议。它支持32位和64位硬件。Linux继承了Unix以网络为核心的设计思想，是一个性能稳定的多用户网络操作系统。</p>
+<p style="text-indent:2em">上面这是来自百度百科的解释，别的不想多说，但是对于linux之父—林纳斯·本纳第克特·托瓦兹（Linus Benedict Torvalds, 1969年~ ），对于这个人是真的很服气，
+	感觉是真的厉害，是开启一个时代的人。还有就是Linus花了两周时间自己用C写了一个分布式版本控制系统，这就是现在的Git！一个月之内，Linux系统的源码已经由Git管理了！牛是怎么定义的呢？随意感受下...</p>
 
 <h2>安装linux</h2>
-		<p>刚开始是装的虚拟机，但是还是推荐不要用虚拟机，直接装一个linux，学习起来更快。对于现在的linux发行版已经很多，都是开源的，
-			现在主要的发行版本有redhat、ubuntu、debian、suse、deepin等，选择一款安装即可。我选用的是deepin。
-			如何安装可以参考<a href="https://www.deepin.org/installation/">deepin社区</a>，讲解的非常详细。<br/>
-			安装deepin后第一次进入这个操作系统后给我的第一感觉就是，我真的被deepin的桌面环境惊艳到了，非常友好的交互式界面，同时用起来也很流畅，搭载的应用比较多。
-		</p>	
+		<p style="text-indent:2em">刚开始是装的虚拟机，但是还是推荐不要用虚拟机，直接装一个linux，学习起来更快。对于现在的linux发行版已经很多，都是开源的，
+															    	现在主要的发行版本有redhat、ubuntu、debian、suse、deepin等，选择一款安装即可。我选用的是deepin。
+																	如何安装可以参考<a href="https://www.deepin.org/installation/">deepin社区</a>，讲解的非常详细。</p>	
+		<p style="text-indent:2em">	安装deepin后第一次进入这个操作系统后给我的第一感觉就是，我真的被deepin的桌面环境惊艳到了，非常友好的交互式界面，同时用起来也很流畅，搭载的应用比较多。</p>	
 
 <h1 id="linux下的包机制">linux下的包机制</h1>
-<p>deepin Linux采用了Debian的软件包管理机制。由于软件包具有易用性、灵活性和扩展性的特点，因而deb软件包管理也成为了一种非常流行的包管理机制。</p>
-<p>Debian包文件包含了二进制可执行文件、库文件、配置文件和man/info帮助页面等文档。通常Debian包文件的后缀为.deb，因此称为“Deb软件包”。Ubuntu有两种类型的软件包：二进制软件包（deb）和源码包（deb-src）。</p>
+<p style="text-indent:2em">deepin Linux采用了Debian的软件包管理机制。由于软件包具有易用性、灵活性和扩展性的特点，因而deb软件包管理也成为了一种非常流行的包管理机制。</p>
+<p style="text-indent:2em">Debian包文件包含了二进制可执行文件、库文件、配置文件和man/info帮助页面等文档。通常Debian包文件的后缀为.deb，因此称为“Deb软件包”。Ubuntu有两种类型的软件包：二进制软件包（deb）和源码包（deb-src）。</p>
 <ul>
 <li>二进制软件包（Binary Packages）：包含可执行文件、库文件、配置文件、man/info页面、版权声明和其他文档。</li>
 <li>源码包（Source Packages）：包含软件源代码、版本修改说明、构建指令以及编译工具等。先由tar工具归档为.tar.gz文件，然后再打包成.dsc文件。</li>
@@ -53,13 +52,13 @@
 <img src="../images/deb_name" alt="alt text" />
 </div>
 		
-<p>我们常常使用的软件包管理工具有两种，一种叫做dpkg软件包管理工具,它是”debian package”的简写，是Debian软件包管理器的基础。它是最早的deb软件包管理工具， 他在Debian Linux一提出软件包管理模式后就诞生了。使用dpkg可以实现软件包的安装、编译、卸载、查询，以及应用程序打包等功能。但是由于当时Linux系统规模和Internet 网络条件的限制，我们使用dpkg安装软件包的时候需要考虑软件包之前的依赖关系。也有人把它叫做本地安装工具。总之，dpkg是一个底层的软件包管理系统， 主要用于对已下载到本地和已安装的软件包进行管理.</p>
-<p>我们的dpkg安装一般来说有可能要安装多个软件包。而我们linux系统中的依赖关系相对复杂，因此就定义了一个依赖关系表。</p>
+<p style="text-indent:2em">我们常常使用的软件包管理工具有两种，一种叫做dpkg软件包管理工具,它是”debian package”的简写，是Debian软件包管理器的基础。它是最早的deb软件包管理工具， 他在Debian Linux一提出软件包管理模式后就诞生了。使用dpkg可以实现软件包的安装、编译、卸载、查询，以及应用程序打包等功能。但是由于当时Linux系统规模和Internet 网络条件的限制，我们使用dpkg安装软件包的时候需要考虑软件包之前的依赖关系。也有人把它叫做本地安装工具。总之，dpkg是一个底层的软件包管理系统， 主要用于对已下载到本地和已安装的软件包进行管理.</p>
+<p style="text-indent:2em">我们的dpkg安装一般来说有可能要安装多个软件包。而我们linux系统中的依赖关系相对复杂，因此就定义了一个依赖关系表。</p>
 <div class="figure">
 <img src="../images/deb_table" alt="alt text" />
 </div>
 		
-<p>既然有了依赖关系，那么我们肯定会安装多个软件包，那么哪个软件包先安装，那个软件包后安装呢？于是，这里就又有了一个叫做优先级的说法。 Ubuntu中为每个软件包指定了一个优先级，作为软件包管理器选择安装和卸载的一个依据。下图中有关于优先级的描述。</p>
+<p style="text-indent:2em">既然有了依赖关系，那么我们肯定会安装多个软件包，那么哪个软件包先安装，那个软件包后安装呢？于是，这里就又有了一个叫做优先级的说法。 Ubuntu中为每个软件包指定了一个优先级，作为软件包管理器选择安装和卸载的一个依据。下图中有关于优先级的描述。</p>
 <div class="figure">
 <img src="../images/deb_youxianji" alt="alt text" />
 </div>
@@ -101,7 +100,7 @@
 <li><code>cd soft.tar.gz</code> 切换到所在的目录;</li>
 <li><code>tar -xzvf soft.tar.gz</code> 解压，一般会生成一个soft目录</li>
 <li><code>cd soft</code> 切换到soft目录</li>
-<li><code>./configure</code> 为编译做好准备</li>
+<li><code>./configure</code> 为编译做好准备，./configure的作用是检测系统配置，生成makefile文件，以便你可以用make和make install来编译和安装程序。如果已经有了makefile文件可以跳过此步骤。对于此问题的具体了解可以查看<a href="https://loringfor.github.io/html/make%E7%9A%84%E4%BD%BF%E7%94%A8.html">“make的使用”</a>这篇博客</li>
 <li><code>make</code> 进行软件编译</li>
 <li><code>make install</code> 安装</li>
 <li><code>make clean</code> 删除安装时产生的临时文件</li>
