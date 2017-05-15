@@ -5,6 +5,7 @@ var arr = eval('[{"title":"初入linux世界","date":"2017-05-11 00:39:19","desc
 {"title":"make的使用","date":"2017-05-14 00:39:19","desc":"linux下，make是一个非常重要的工具"},\
 {"title":"git的学习","date":"2017-05-14 00:39:19","desc":"每一个程序员都必须熟练使用git"},\
 {"title":"Qt模块简介","date":"2017-05-14 00:39:19","desc":"对Qt5的模块进行一个简单的介绍，便于以后的需要去快速查找"},\
+{"title":"moc的作用","date":"2017-05-13 17:39:19","desc":"对于qt编译的一个补充，了解一下moc的作用"},\
 {"title":"QObject类详解","date":"2017-05-16 23:46:41","desc":"详细了解Qt中的基类QObject"}]')
 
 function get(currentPage) {
