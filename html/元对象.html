@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>元对象</title>
+  <meta name="description" content="元对象" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" type="text/css" href="../css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+
+  <meta name="generator" content="Casper theme live demo">
+</head>
+<body class="post-template">
+<main class="content" role="main">
+  <article class="post">
+    <span class="post-meta">
+      <time datetime="2017-05-15" itemprop="datePublished">2017-05-15 20:12:20</time>
+       by <a href='http://loringfor.github.io' style='margin:0 5px;'>向玉林</a>
+    </span>
+    <h1 class="post-title" align="center">元对象</h1>
+    <section class="post-content">
+     <p>对于上次关于什么是moc工具的时候，写了一篇小短文，但是当时概念还不是很清楚，对于为什么要声明Q_OBJECT这个宏还是不了解，经过几天的学习，对于这个有了新的了解，写篇小文章说说我的理解。</p>
+<p>首先要弄清楚什么是<strong>元对象（QMetaObject）</strong>？</p>
+<p>在计算机科学中，元对象是这样一个东西：它可以操纵，创建，描述，或执行其他对象。元对象描述的对象称为基对象。元对象可能存这样的信息：基础对象的类型，接口，类，方法，属性，变量，函数，控制结构等。</p>
+<p>具体来说，QMetaObject是用来保存Qt元对象的元信息，当继承QObject类并使用宏Q_OBJECT时，创建的类产生一个静态QMetaObject实例staticMetaObject，这个实例会保存类名、信号名称及索引、槽的名字及索引等等在对象操作时需要的基本信息，而这也是信号与槽的根本所在。</p>
+<p>QT中的<strong>元对象系统:</strong></p>
+<p>QT中的元对象系统基于以下三种东西：</p>
+<ol style="list-style-type: decimal">
+<li><p>QObject 提到这个类，相信大家都不陌生。几乎所有在QT开发的类都继承于此类。 QObject这个类为其他需要用到元对象系统的类提供了一个基类。</p></li>
+<li><p>Q_OBJECT 放在类声明中的Q_OBJECT宏是用来为这个类开启元对象特性的，例如动态的属性(dynamic properties)，信号(signals)以及槽(slots)。 可这个Q_OBJECT宏到底是什么呢？如下图所示，大家可以看到它是一些函数和一个静态的类成员。 Q_OBJECT宏内容如下： #define Q_OBJECT<br />
+public:<br />
+Q_OBJECT_CHECK<br />
+static const QMetaObject staticMetaObject;<br />
+Q_OBJECT_GETSTATICMETAOBJECT<br />
+virtual const QMetaObject <em>metaObject() const;<br />
+virtual void </em>qt_metacast(const char <em>);<br />
+QT_TR_FUNCTIONS<br />
+virtual int qt_metacall(QMetaObject::Call, int, void *</em>);<br />
+private:</p></li>
+</ol>
+<p>而Q_OBJECT_CHECK宏的内容是： #define Q_OBJECT_CHECK<br />
+template <typename T> inline void qt_check_for_QOBJECT_macro(const T &amp;_q_argument) const<br />
+{ int i = qYouForgotTheQ_OBJECT_Macro(this, &amp;_q_argument); i = i; } 这里是检查类声明中是否遗漏Q_OBJECT宏，如果遗漏则在编译时给出错误提示。</p>
+<p>而QT_TR_FUNCTIONS宏的内容是： # define QT_TR_FUNCTIONS<br />
+static inline QString tr(const char <em>s, const char </em>c = 0)<br />
+{ return staticMetaObject.tr(s, c); }<br />
+static inline QString trUtf8(const char <em>s, const char </em>c = 0)<br />
+{ return staticMetaObject.trUtf8(s, c); }<br />
+static inline QString tr(const char <em>s, const char </em>c, int n)<br />
+{ return staticMetaObject.tr(s, c, n); }<br />
+static inline QString trUtf8(const char <em>s, const char </em>c, int n)<br />
+{ return staticMetaObject.trUtf8(s, c, n); } 一些字符串操作的算法，这几个方法实际上是隐藏了父类QObject中这个几个方法。我们在类定义中调用的tr或是trUtf8方法都是调用这里的方法。</p>
+<ol start="3" style="list-style-type: decimal">
+<li>moc 什么是moc，moc工具有什么用，这个在moc的作用这篇文章里面已经解释过了，这里简单介绍下。 就是当moc工具读取一个c++源文件时，如果它发现类的声明中有Q_OBJECT时，它会产生另外一个c++源文件，这个文件中就包含了这些类的元对象代码。这个新产生的文件可以以#include形式包含到这个类的源文件中，但更常用的做法是和这个类的定义一起编译连接。</li>
+</ol>
+<p>现在我自己创建一个Mainwindow类，此类继承自QMainwindow类，在mainwindow.h里面编写代码如下，其中声明了三个信号，三个槽函数。</p>
+<pre><code>
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+#include <QMainWindow>
+#include <QString>
+namespace Ui { class MainWindow; }
+class MainWindow : public QMainWindow 
+{
+Q_OBJECT public: explicit MainWindow(QWidget <em>parent = 0);
+~MainWindow(); 
+public slots: 
+	void slotTest1(int value); 
+	void slotTest2(const QString value); 
+	void slotTest3(bool value); 
+signals: 
+	void signalTest1(int value);
+	void signalTest2(const QString value); 
+	void signalTest3(bool value); 
+public: 
+	void test();
+	private: Ui::MainWindow ui; 
+	};
+	#endif // MAINWINDOW_H
+</code></pre>
+
+<p>在该目录下，在命令行输入 <code>moc mainwindow.h -o moc_mainwindow.h</code>生成了moc_mianwindow.h文件，打开此文件，让我们一起分析下此文件里面的内容：</p>
+<pre ><code>
+/*************************************************************
+** Meta object code from reading C++ file 'mainwindow.h'
+**
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.6.1)
+**
+** WARNING! All changes made in this file will be lost!
+************************************************************/</code></pre>
+
+//先看看的一些预处理，不少的include、if 和error：
+<pre ><code>#include "mainwindow.h"
+#include <QtCore/qbytearray.h>
+#include <QtCore/qmetatype.h>
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'mainwindow.h' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 67
+#error "This file was generated using the moc from 5.6.1. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif</code></pre></br>
+
+/*接着是一个宏QT_BEGIN_MOC_NAMESPACE
+在qglobal.h我们可以找到如下：
+<pre><code># define QT_BEGIN_MOC_NAMESPACE QT_USE_NAMESPACE
+# define QT_USE_NAMESPACE using namespace :: QT_NAMESPACE;</code></pre>
+<p>所以QT_BEGIN_MOC_NAMESPACE就是using namespace :: QT_NAMESPACE;现在看起来感觉熟悉多了。</p>
+<p>当然和它的配对的一项QT_END_MOC_NAMESPACE也看一下：</p>
+<p>在qglobal.h我们可以找到如下：</p>
+<code># define QT_END_MOC_NAMESPACE</code>
+<p>它就是一个空的，什么也没有，仅仅是为了配对，看起来比较好看吧。*/</p>
+<pre ><code>QT_BEGIN_MOC_NAMESPACE</code></pre></br>
+
+
+//函数名信息结构体
+/* data字段是一个由byte数组组成的数组，数组大小根据信号和槽个数有关，这个数组在调用QObject的connect函数时用来匹配信号名或槽名。
+    stringdata 存放的是字符资源，存放全部的信号名、槽名、类名。 */
+<pre ><code>struct qt_meta_stringdata_MainWindow_t {
+    QByteArrayData data[9];
+    char stringdata0[84];
+};
+#define QT_MOC_LITERAL(idx, ofs, len) Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, qptrdiff(offsetof(qt_meta_stringdata_MainWindow_t, stringdata0) + ofs- idx * sizeof(QByteArrayData)))</code></pre></br>
+
+//函数名信息结构体            对象
+<pre ><code>static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
+    {
+QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
+QT_MOC_LITERAL(1, 11, 11), // "signalTest1"
+QT_MOC_LITERAL(2, 23, 0), // ""
+QT_MOC_LITERAL(3, 24, 5), // "value"
+QT_MOC_LITERAL(4, 30, 11), // "signalTest2"
+QT_MOC_LITERAL(5, 42, 11), // "signalTest3"
+QT_MOC_LITERAL(6, 54, 9), // "slotTest1"
+QT_MOC_LITERAL(7, 64, 9), // "slotTest2"
+QT_MOC_LITERAL(8, 74, 9) // "slotTest3"
+    },
+    "MainWindow\0signalTest1\0\0value\0signalTest2\0"
+    "signalTest3\0slotTest1\0slotTest2\0"
+    "slotTest3"
+};
+#undef QT_MOC_LITERAL</code></pre></br>
+
+//描述信号槽在调用时的索引，参数，返回值等信息
+/*你写的每个类，只要是从QObject继承，并且在类的声明中包含Q_OBJECT宏，
+moc都会为了定义一个（qt_meta_data_+类名）格式的静态变量。
+content描述了一些基本参数，然后的四项分别是信号和槽的名字和参数。*/
+<pre ><code>static const uint qt_meta_data_MainWindow[] = {
+ // content:
+       7,       // revision
+       0,       // classname
+       0, 0, // classinfo
+       6, 14, // methods,信号和槽的总个数，在表中的偏移量,即14个uint之后是信息&槽的信息
+       0, 0, // properties
+       0, 0, // enums/sets
+       0, 0, // constructors
+       0,       // flags
+       3,       // signalCount
+
+// signals: name, argc, parameters, tag, flags
+//name：名称；argc：参数个数
+//parameters：参数的在 qt_meta_data_MainWindow 这个表中的索引位置，就是下面的signals:parrment
+//tag:  对应的是 qt_meta_data_MainWindow 索引
+//flags：特征值，访问权限标识,信号还是槽的标志相或得到的
+       1, 1, 44, 2, 0x06 /* Public */,
+       4, 1, 47, 2, 0x06 /* Public */,
+       5, 1, 50, 2, 0x06 /* Public */,
+
+ // slots: name, argc, parameters, tag, flags
+       6, 1, 53, 2, 0x0a /* Public */,
+       7, 1, 56, 2, 0x0a /* Public */,
+       8, 1, 59, 2, 0x0a /* Public */,
+
+ // signals: parameters
+    QMetaType::Void, QMetaType::Int, 3,
+    QMetaType::Void, QMetaType::QString, 3,
+    QMetaType::Void, QMetaType::Bool, 3,
+
+ // slots: parameters
+    QMetaType::Void, QMetaType::Int, 3,
+    QMetaType::Void, QMetaType::QString, 3,
+    QMetaType::Void, QMetaType::Bool, 3,
+       0        // eod
+};</code></pre></br>
+
+/*元对象调用入口，通过索引调用函数
+这时是QT信号槽原理实现很重要的一步，
+这里_id就是信号槽对应的索引，可每个信号或是槽对应哪个索引呢，
+看看它的元字符串数据qt_meta_stringdata_MainWindow，应该就知道了*/
+<pre ><code>void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        MainWindow *_t = static_cast<MainWindow *>(_o);
+        Q_UNUSED(_t)
+        switch (_id) {
+        case 0: _t->signalTest1((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 1: _t->signalTest2((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 2: _t->signalTest3((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 3: _t->slotTest1((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 4: _t->slotTest2((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 5: _t->slotTest3((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        default: ;
+        }
+    } else if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        void **func = reinterpret_cast<void **>(_a[1]);
+        {
+            typedef void (MainWindow::*_t)(int );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::signalTest1)) {
+                *result = 0;
+                return;
+            }
+        }
+        {
+            typedef void (MainWindow::*_t)(const QString );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::signalTest2)) {
+                *result = 1;
+                return;
+            }
+        }
+        {
+            typedef void (MainWindow::*_t)(bool );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::signalTest3)) {
+                *result = 2;
+                return;
+            }
+        }
+    }
+}</code></pre></br>
+
+/*静态元对象，包含了函数名信息结构体,主要包含三项：
+1. 它的父类的静态元对象。
+2. 它的元字符串数据。
+3. 它的元数据。
+保存了moc文件的信号&槽的调用索引信息。
+在信号&槽绑定的时候就是通过这些信息一步一步建立的绑定关系*/
+<pre ><code>const QMetaObject MainWindow::staticMetaObject = {
+    { &QMainWindow::staticMetaObject, qt_meta_stringdata_MainWindow.data,
+      qt_meta_data_MainWindow,  qt_static_metacall, Q_NULLPTR, Q_NULLPTR}
+};
+
+//返回一个元对象
+const QMetaObject *MainWindow::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}</code></pre></br>
+
+//元对象中的字符数据转换，通过比较类的元字符串数据，如果相等则当前的this指针转换为空指针返回，
+//否则继续向上找，如果最顶上的类的元字符串数据还是不相同则返回空指针。
+<pre ><code>void *MainWindow::qt_metacast(const char *_clname)
+{
+    if (!_clname) return Q_NULLPTR;
+    if (!strcmp(_clname, qt_meta_stringdata_MainWindow.stringdata0))
+        return static_cast<void*>(const_cast< MainWindow*>(this));
+    return QMainWindow::qt_metacast(_clname);
+}</code></pre></br>
+
+//元对象调用上层入口，槽函数调用从这个函数开始
+<pre ><code>int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QMainWindow::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 6)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 6;
+    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 6)
+            *reinterpret_cast<int*>(_a[0]) = -1;
+        _id -= 6;
+    }
+    return _id;
+}</code></pre></br>
+
+//信号的实现
+<pre ><code>// SIGNAL 0
+void MainWindow::signalTest1(int _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
+}
+
+// SIGNAL 1
+void MainWindow::signalTest2(const QString _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 1, _a);
+}
+
+// SIGNAL 2
+void MainWindow::signalTest3(bool _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 2, _a);
+}
+QT_END_MOC_NAMESPACE</font>
+</code></pre></br>
+		
+    <footer class="post-footer">
+      <section class="author">
+        <h4>向玉林</h4>
+      </section>
+
+      <section class="share">
+        <h4>Share this post</h4>
+        <a class="icon-twitter" href="http://twitter.com/share?url=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <span class="hidden">Twitter</span>
+        </a>
+        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+          onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <span class="hidden">Facebook</span>
+        </a>
+        <a class="icon-google-plus" href="https://plus.google.com/share?url=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <span class="hidden">Google+</span>
+        </a>
+      </section>
+    </footer>
+  </article>
+</main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="../js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="../js/index.js"></script>
+</body>
+</html>
