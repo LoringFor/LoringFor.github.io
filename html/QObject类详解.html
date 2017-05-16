@@ -39,7 +39,7 @@
 <li>当对象销毁时指针自动设置为0</li>
 <li>动态类型转换</li>
 </ol>
-<p><strong>详细描述</strong>（抄录于官方文档）</p>
+<p><strong>详细描述</strong>（抄录于<a href="http://doc.qt.io/qt-5/qobject.html"><font color="green">官方文档</font></a>）</p>
 <ol style="list-style-type: decimal">
 <li>QObject类是所有Qt对象的基类。</li>
 <li>QObject是Qt对象模型的中心。这个模型的中心特征就是一种用于无缝对象通讯的被叫做信号和槽的非常强大的机制。你能够使用connect()把信号和槽连接起来并且可以用disconnect()来破坏这种连接。为了避免从不结束的通知循环，你可以调用blockSignals()临时地阻塞信号。保护函数connectNotify()和disconnectNotify()使跟踪连接成为可能。</li>
@@ -150,7 +150,8 @@ disconnect()通常被用在三种方式下，正如下面的例子所描述的�
 <li><p><code>void QObject::timerEvent ( QTimerEvent * ) </code>这个信号处理者可以在子类中重新实现而接收对象的定时器事件。 QTimer提供了定时器功能的高级接口，并且提供了关于定时器的更多说明。</p></li>
 <li><p><code>QString QObject::tr ( const char * sourceText, const char * comment ) const</code> 其实就可以把这个函数当做一个翻译，把中文翻译成指定的类型，不发生中文显示乱码的现象。返回sourceText的翻译版本，或者如果没有合适的版本返回sourceText它自己。翻译上下文是comment的QObject（默认为空）。所有使用Q_OBJECT宏的QObject对象有这个函数的重新实现，把子类名作为上下文。</p></li>
 </ol>
-<p>对于QObject的成员函数就分析到了这里，其实QObject作为所有Qt函数的基类主要是来实现了Qt特有的信号和槽机制，需要对connect函数进行深入的理解。通过对QObject的学习还会发现很多东西，因为和它想联系的东西太多，当然还有QObject的宏将在下一篇文章中学习。</p>
+<p>对于QObject的成员函数就分析到了这里，其实QObject作为所有Qt函数的基类主要是来实现了Qt特有的信号和槽机制，需要对connect函数进行深入的理解。通过对QObject的学习还会发现很多东西，
+	因为和它想联系的东西太多，当然还有QObject的宏将在下一篇文章中学习。当然如果想详细了解QObject类，可以去看Qt的<a href="http://doc.qt.io/qt-5/qobject.html"><font color="green">官方文档</font></a></p>
 
 
     <footer class="post-footer">
