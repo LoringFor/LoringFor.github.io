@@ -8,5 +8,9 @@
 
 ## 地址
 
-博客[地址](http://loringfor.github.io)
+博客地址[http://loringfor.github.io](http://loringfor.github.io)
+
+## 邮箱
+
+loringfor@outlook.com
 
