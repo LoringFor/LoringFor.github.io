@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+  <title>进程间的通信</title>
+  <meta name="description" content="make的使用" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" type="text/css" href="../css/screen.css" />
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Noto+Serif:400,700,400italic|Open+Sans:700,400" />
+
+  <meta name="generator" content="Casper theme live demo">
+</head>
+<body class="post-template">
+<main class="content" role="main">
+  <article class="post">
+    <span class="post-meta">
+      <time datetime="2017-05-12" itemprop="datePublished">2017-05-12 23:22:37</time>
+       by <a href='http://loringfor.github.io' style='margin:0 5px;'>向玉林</a>
+    </span>
+<h1 class="post-title" align="center">进程间的通信</h1>
+    <section class="post-content">
+
+<p><strong>什么是进程间的通信？</strong>就是程序与程序之间相互通信。他其实就是一组编程接口，让程序员能够协调不同的进程，使之能在一个操作系统里同时运行，并相互传递、交换信息。这使得一个程序能够在同一时间里处理许多用户的要求。因为即使只有一个用户发出要求，也可能导致一个操作系统中多个进程的运行，进程之间必须互相通信。</p>
+<p>那么进程间的通信有那些方式呢？进程间的通信主要分为以下六种：<strong>管道、信号、信号队列、共享内存、信号量、套接字</strong>。下面将结合我的学习和理解谈谈这六种通信机制。</p>
+
+<strong><font color="red">管道：</font></strong></br>
+（1）管道是半双工的，数据只能向一个方向流动；需要双方通信时，需要建立起两个管道</br>
+（2）只能用于父子进程或者兄弟进程之间(具有亲缘关系的进程);</br>
+（3）单独构成一种独立的文件系统：管道对于管道两端的进程而言，就是一个文件，但它不是普通的文件，它不属于某种文件系统，而是自立门户，单独构成一种文件系统，并且只存在与内存中。</br>
+（4）数据的读出和写入：一个进程向管道中写的内容被管道另一端的进程读出。写入的内容每次都添加在管道缓冲区的末尾，并且每次都是从缓冲区的头部读出数据。</br>
+  &nbsp;&nbsp;&nbsp;&nbsp;可以看出，管道是基于文件描述符的通信方式。当一个管道建立时，它会创建两个文件描述符fd[0]和fd[1]。其中fd[0]固定用于读管道，而fd[1]固定用于写管道,一般文件I/O的函数都可以用来操作管道。</br></br>
+
+
+<strong><font color="red">信号：</font></strong></br>
+ &nbsp;&nbsp;&nbsp;&nbsp;信号是UNIX和Linux系统响应某些条件而产生的一个事件，接收到该信号的进程会相应地采取一些行动。通常信号是由一个错误产生的。
+但它们还可以作为进程间通信或修改行为的一种方式，明确地由一个进程发送给另一个进程。一个信号的产生叫生成，接收到一个信号叫捕获。</br>
+ &nbsp;&nbsp;&nbsp;&nbsp;当一个事件发生时，需要通知一个进程，这时生成一个信号。当进程识别出信号的到来，就采取适当的动作来传送或处理信号。
+在信号到来和进程对信号进行处理之间，信号在进程上挂起。 内核为进程生产信号，来响应不同的事件，这些事件就是信号源。主要的信号源如下：</br>
+
+<ul>
+<li>异常：进程运行过程中出现异常；</li>
+<li>其它进程：一个进程可以向另一个或一组进程发送信号；</li>
+<li>终端中断：Ctrl-C，Ctrl-；</li>
+<li>作业控制：前台、后台进程的管理；</li>
+<li>分配额：CPU超时或文件大小突破限制；</li>
+<li>通知：通知进程某事件发生，如I/O就绪等；</li>
+<li>报警：计时器到期。</li>
+</ul>
+
+<strong>常见的信号有：</strong></br>
+<ul>
+<li>SIGHUP： 从终端上发出的结束信号；</li>
+<li>SIGINT： 来自键盘的中断信号（Ctrl-C）；</li>
+<li>SIGQUIT：来自键盘的退出信号（Ctrl-）；</li>
+<li>SIGFPE： 浮点异常信号（例如浮点运算溢出）；</li>
+<li>SIGKILL：该信号结束接收信号的进程；</li>
+<li>SIGALRM：进程的定时器到期时，发送该信号；</li>
+<li>SIGTERM：kill 命令发出的信号；</li>
+<li>SIGCHLD：标识子进程停止或结束的信号；</li>
+<li>SIGSTOP：来自键盘（Ctrl-Z）或调试程序的停止执行信号；</li>
+<li>…………</li>
+</ul>
+
+&nbsp;&nbsp;&nbsp;&nbsp;需要说明的是，对信号的任何处理，包括终止进程，都必须由接收到信号的进程来执行。而进程要执行信号处理程序，就必须等到它真正运行时。因此，对信号的处理可能需要延迟一段时间。</br>
+&nbsp;&nbsp;&nbsp;&nbsp;信号没有固有的优先级。如果为一个进程同时产生了两个信号，这两个信号会以任意顺序出现在进程中并会按任意顺序被处理。另外，也没有机制用于区分同一种类的多个信号。
+	如果进程在处理某个信号之前，又有相同的信号发出，则进程只能接收到一个信号。进程无法知道它接收了1个还是42个SIGCONT信号。</br>
+&nbsp;&nbsp;&nbsp;&nbsp;对于信号感觉没有怎么理解。。。。</br></br>
+
+<strong><font color="red">信号量：</font></strong></br>
+&nbsp;&nbsp;&nbsp;&nbsp;为了防止出现因多个程序同时访问一个共享资源而引发的一系列问题，我们需要一种方法，它可以通过生成并使用令牌来授权，
+	在任一时刻只能有一个执行线程访问代码的临界区域。临界区域是指执行数据更新的代码需要独占式地执行。而信号量就可以提供这样的一种访问机制，
+	让一个临界区同一时间只有一个线程在访问它，也就是说信号量是用来调协进程对共享资源的访问的。</br>
+&nbsp;&nbsp;&nbsp;&nbsp;信号量是一个特殊的变量，程序对其访问都是原子操作，且只允许对它进行等待（即P(信号变量))和发送（即V(信号变量))信息操作。
+最简单的信号量是只能取0和1的变量，这也是信号量最常见的一种形式，叫做二进制信号量。而可以取多个正整数的信号量被称为通用信号量。</br>
+&nbsp;&nbsp;&nbsp;&nbsp;由于信号量只能进行两种操作等待和发送信号，即P(sv)和V(sv),他们的行为是这样的：</br>
+<ul>
+<li>P(sv)：如果sv的值大于零，就给它减1；如果它的值为零，就挂起该进程的执行</li>
+<li>V(sv)：如果有其他进程因等待sv而被挂起，就让它恢复运行，如果没有进程因等待sv而挂起，就给它加1.</li>
+</ul>
+
+<strong><font color="red">共享内存：</font></strong></br>
+ &nbsp;&nbsp;&nbsp;&nbsp;共享内存就是允许两个不相关的进程访问同一个逻辑内存。共享内存是在两个正在运行的进程之间共享和传递数据的一种非常有效的方式。
+	不同进程之间共享的内存通常安排为同一段物理内存。进程可以将同一段共享内存连接到它们自己的地址空间中，所有进程都可以访问共享内存中的地址，
+	就好像它们是由用C语言函数malloc分配的内存一样。而如果某个进程向共享内存写入数据，所做的改动将立即影响到可以访问同一段共享内存的任何其他进程。</br>
+
+ &nbsp;&nbsp;&nbsp;&nbsp;对于共享内存我想大家都用过，那就是我们使用复制和粘贴就是一个很好的通过共享内存来进行进程间的通信。
+	比如我们在浏览器的网站上看见一段好的文章，选中后进行复制，那么文字就进入了共享内存区，然后进入word执行粘贴，
+	那么word就会通过访问共享内存把共享内存内的内容粘贴到 word，实现浏览器到word的两个进程间的通信。</br></br>
+
+
+<strong><font color="red">消息队列：</font></strong></br>
+&nbsp;&nbsp;&nbsp;&nbsp;消息队列提供了一种从一个进程向另一个进程发送一个数据块的方法（感觉消息队列和前面的管道有些像）。每个数据块都被认为含有一个类型，
+	接收进程可以独立地接收含有不同类型的数据结构。我们可以通过发送消息来避免命名管道的同步和阻塞问题。但是消息队列与命名管道一样，每个数据块都有一个最大长度的限制。</br></br>
+
+<strong><font color="red">套接字：</font></strong></br>
+ &nbsp;&nbsp;&nbsp;&nbsp;前面说到的进程间的通信，所通信的进程都是在同一台计算机上的，而使用套接字（socket）进行通信的进程可以是同一台计算机的进程，也是可以是通过网络连接起来的不同计算机上的进程。</br>
+ &nbsp;&nbsp;&nbsp;&nbsp;套接字是一种通信机制，凭借这种机制，客户/服务器（即要进行通信的进程）系统的开发工作既可以在本地单机上进行，也可以跨网络进行。
+	也就是说它可以让不在同一台计算机但通过网络连接计算机上的进程进行通信。也因为这样，套接字明确地将客户端和服务器区分开来。</br>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;最后想说的是，虽然查阅资料对这几种进程间的通信机制简单了解了些，但还是很有多没有理解，需要进一步的学习</p>
+
+
+		
+    <footer class="post-footer">
+      <section class="author">
+        <h4>向玉林</h4>
+      </section>
+
+      <section class="share">
+        <h4>Share this post</h4>
+        <a class="icon-twitter" href="http://twitter.com/share?url=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <span class="hidden">Twitter</span>
+        </a>
+        <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+          onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <span class="hidden">Facebook</span>
+        </a>
+        <a class="icon-google-plus" href="https://plus.google.com/share?url=http://kywk.github.io/hexo-theme-casper/2014/02/20/casper-readme/"
+           onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <span class="hidden">Google+</span>
+        </a>
+      </section>
+    </footer>
+  </article>
+</main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="../js/jquery.fitvids.js"></script>
+<script type="text/javascript" src="../js/index.js"></script>
+</body>
+</html>
